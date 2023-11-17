@@ -28,9 +28,9 @@ JenkinsFile Code steps
 >step2: To Pass environments in jenkins
 
     environment {
-        APP_NAME = "myapp"
-        ECR_REGISTRY = "115498080659.dkr.ecr.us-east-1.amazonaws.com"
-        ECR_REPOSITORY = "thej"
+        APP_NAME = "mytomee"
+        ECR_REGISTRY = "433609462612.dkr.ecr.eu-west-2.amazonaws.com"
+        ECR_REPOSITORY = "myimagerepo"
         IMAGE_NAME = "${APP_NAME}"
         BUILD_VERSION = getVersion()
     }
@@ -41,7 +41,7 @@ JenkinsFile Code steps
         {
             steps
             {
-                git 'https://github.'
+                git 'https://github.com/meenashreyansh12/Project1.git'
             }
         }
 
@@ -54,7 +54,7 @@ JenkinsFile Code steps
                     sh 'mvn test'
             }
         }
-        stage("Build Application Code")
+        stage("Build Application")
         {
             steps
             {
@@ -124,6 +124,28 @@ JenkinsFile Code steps
 
         # docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION
 
+  stage("Deploying ECR image") 
+        {
+            steps
+            { 
+                script
+                { 
+                    sh 'ssh ubuntu@172.31.7.122 aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                    sh 'ssh ubuntu@172.31.7.122 docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION'
+                }
+            }
+        }
+
+>step7: Stop previous containers(myappcontainer) 
+
+        stage("stop previuos containers")
+        {
+            steps
+            {
+                sh 'ssh ubuntu@54.234.168.231 docker rm -f myappcontainer'
+            }
+        }
+
 
 >step8: Now run the container 
 
@@ -135,9 +157,9 @@ JenkinsFile Code steps
             }
         }
 
->step9: Stop the container(myappcontainer) 
+>step9: Delete the container(myappcontainer) 
 
-        stage("stop previuos containers")
+        stage("delete previuos container")
         {
             steps
             {
