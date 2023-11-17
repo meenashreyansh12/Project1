@@ -204,5 +204,4 @@ JenkinsFile Code steps
 
 # Gmail Notification 
 
-![Alt text](images/image-1.png)
-
+![Alt text](<Screenshot (2).png>)
