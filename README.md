@@ -199,8 +199,10 @@ JenkinsFile Code steps
 
 # All stages 
 
-![Alt text](images/image.png)
+
+![Alt text](CICD-stages-successful.PNG)
 
 # Gmail Notification 
 
 ![Alt text](images/image-1.png)
+
