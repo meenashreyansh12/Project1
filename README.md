@@ -109,15 +109,14 @@ JenkinsFile Code steps
         }
 
 
->step7: Now pull the ECR image to local machine. For this, we need to login to ECR and deploy it into EC2 machine(docker)
+>step7: Now pull the ECR image to local machine. For this, we need to login to ECR and deploy it into EC2 machine(Docker)
 
 * Setup Docker machine (specify security group in the inbound rules. Open ssh 22 port to admin access only and specify customised port 9090 to anyone to access our webpage)
 * Establish the password-less authentication from Jenkins machine to Docker machine 
-* Add ubuntu user in docker group to run the docker commands 
-
+* Add ubuntu user in docker group, to run the docker commands 
 * For this we need to create a role with AmazonEC2ContainerRegistryFullAccess and attach it to the EC2-instance
 
-* Authenticate first To aws ecr For this machine need ECR permissions 
+* Authenticate to AWS ECR and install awscli and aws configure to create AccessKeys and SecretAccessKeys on IAM role for ECR permissions
 
         # aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
 
@@ -125,46 +124,53 @@ JenkinsFile Code steps
 
         # docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION
 
->step10: stop old contaiers if running with same name (myappcontainer)
 
-        stage("stop previuos containers") {
-            steps{
-                script{ 
-                    sh 'ssh ubuntu@54.234.168.231 docker rm -f myappcontainer'
-                }
-            }
-        }
+>step8: Now run the container 
 
->step11: Now Run container 
-
-        stage("Run Docker image") {
-            steps{
+        stage("Run Docker image")
+        {
+            steps
+            {
                 sh "ssh ubuntu@54.234.168.231 docker run --name myappcontainer -d -p 9090:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION"
             }
         }
 
+>step9: Stop the container(myappcontainer) 
 
->step12: setup To send Notification To gmail ( for this we need to setup smtp port in jenkins to perticular gmail )
+        stage("stop previuos containers")
+        {
+            steps
+            {
+                sh 'ssh ubuntu@54.234.168.231 docker rm -f myappcontainer'
+            }
+        }
+
+
+>step10: Setup to send Notification To gmail ( for this we need to setup smtp port in jenkins to particular gmail )
 
 * according below steps if all steps gets success it will send project success message or if any step gets fail it will failed project
 * To setup mail configuration in jenkins follw this link: https://drive.google.com/file/d/1G2HGfoGKyv3pzB1eLnW8mVxaUeltqpZ1/view?usp=drive_link
  
 
-        post {
-            success {
-                mail bcc: '', body: 'ci-cd gets success', cc: '', from: '', replyTo: '', subject: 'Pojects completed successfully', to: 'goudc423@gmail.com'
+        post
+        {
+            success
+            {
+                mail bcc: '', body: 'ci-cd gets success', cc: '', from: '', replyTo: '', subject: 'Pojects completed successfully', to: 'meenpenu99@gmail.com'
                 echo "Project completed Successfully"
             }
-            failure {
-                mail bcc: '', body: 'failed ci-cd', cc: '', from: '', replyTo: '', subject: 'Pojects Failed', to: 'goudc423@gmail.com'
+            failure
+            {
+                mail bcc: '', body: 'failed ci-cd', cc: '', from: '', replyTo: '', subject: 'Pojects Failed', to: 'meenpenu99@gmail.com'
                 echo "Project Failed"
             }
         }
 
 
->step13: Specify the function to trigger build versions images 
+>step11: Specify the function to trigger build versions images 
 
-        def getVersion() {
+        def getVersion()
+        {
             def buildNumber = env.BUILD_NUMBER ?: '0'
             return "1.0.${buildNumber}"
         }
