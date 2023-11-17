@@ -1,57 +1,106 @@
 pipeline
 {
     agent any
+    
+    environment
+    {
+        APP_NAME = "mytomee"
+        ECR_REGISTRY = "433609462612.dkr.ecr.eu-west-2.amazonaws.com"
+        ECR_REPOSITORY = "myimagerepo"
+        IMAGE_NAME = "${APP_NAME}"
+        BUILD_VERSION = getVersion()
+    }
     stages
     {
-        stage('ContinuousDownload')
+        stage ('download the code')
         {
             steps
             {
-                git 'https://github.com/intelliqittrainings/maven.git'
+                git 'https://github.com/meenashreyansh12/Project1.git'
             }
         }
-        stage('ContinuousBuild')
+        stage ('Test application')
+        {
+            steps
+            {
+                sh 'mvn test'
+            }
+        }
+        stage ('Build application')
         {
             steps
             {
                 sh 'mvn package'
             }
         }
-        stage('ContinuousDeployment')
+        stage (' Build docker image')
         {
             steps
             {
-               deploy adapters: [tomcat9(credentialsId: 'bfb67f1d-2f4e-430c-bb8d-30584116bd00', path: '', url: 'http://172.31.51.212:9090')], contextPath: 'test1', war: '**/*.war'
+                sh "docker build -t $APP_NAME:$BUILD_VERSION ."
             }
         }
-        stage('ContinuousTesting')
+        stage ('push docker image to ECR')
         {
             steps
             {
-               git 'https://github.com/intelliqittrainings/FunctionalTesting.git'
-               sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline1/testing.jar'
+                script
+                {
+                    sh 'aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                    sh 'docker tag $APP_NAME $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION'
+                    sh 'docker push $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION'
+                }
             }
         }
-       
+        stage("Deploying ECR image") 
+        {
+            steps
+            { 
+                script
+                { 
+                    sh 'ssh ubuntu@172.31.7.122 aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY}'
+                    sh 'ssh ubuntu@172.31.7.122 docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION'
+                }
+            }
+        }
+        stage("stop previuos containers") 
+        {
+            steps
+            {
+                    sh 'ssh ubuntu@172.31.7.122 docker rm -f myappcontainer'
+            }
+        }
+        
+        stage("Run Docker image")
+        {
+            steps
+            {
+                sh "ssh ubuntu@172.31.7.122 docker run --name myappcontainer -d -p 9090:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION"
+            }
+        }
+        stage("delete the previous container") 
+        {
+            steps
+            {
+                sh 'ssh ubuntu@172.31.7.122 docker rm -f myappcontainer'
+            }
+        }
+        
     }
-    
     post
-    {
-        success
         {
-            input message: 'Need approval from the DM!', submitter: 'srinivas'
-               deploy adapters: [tomcat9(credentialsId: 'bfb67f1d-2f4e-430c-bb8d-30584116bd00', path: '', url: 'http://172.31.50.204:9090')], contextPath: 'prod1', war: '**/*.war'
-        }
-        failure
-        {
-            mail bcc: '', body: 'Continuous Integration has failed', cc: '', from: '', replyTo: '', subject: 'CI Failed', to: 'selenium.saikrishna@gmail.com'
-        }
-       
-    }
-    
-    
-    
-    
-    
-    
+          success 
+          {
+            mail bcc: '', body: 'CI-CD project completed successfully', cc: '', from: '', replyTo: '', subject: 'Project completed successfully', to: 'meenakshishreyansh@gmail.com'
+          }
+          failure 
+          {
+            mail bcc: '', body: 'CI-CD project failed', cc: '', from: '', replyTo: '', subject: 'Project failed', to: 'meenakshishreyansh@gmail.com'
+          }
+       }
+}
+def getVersion() 
+{
+    def buildNumber = env.BUILD_NUMBER ?: '0'
+    return "1.0.${buildNumber}"
 }
