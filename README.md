@@ -178,12 +178,12 @@ JenkinsFile Code steps
         {
             success
             {
-                mail bcc: '', body: 'ci-cd gets success', cc: '', from: '', replyTo: '', subject: 'Pojects completed successfully', to: 'meenpenu99@gmail.com'
-                echo "Project completed Successfully"
+                mail bcc: '', body: 'ci-cd gets success', cc: '', from: '', replyTo: '', subject: 'Pojects completed successfully', to: 
+                'meenakshishreyansh@gmail.com' echo "Project completed Successfully"
             }
             failure
             {
-                mail bcc: '', body: 'failed ci-cd', cc: '', from: '', replyTo: '', subject: 'Pojects Failed', to: 'meenpenu99@gmail.com'
+                mail bcc: '', body: 'failed ci-cd', cc: '', from: '', replyTo: '', subject: 'Pojects Failed', to: 'meenakshishreyansh@gmail.com'
                 echo "Project Failed"
             }
         }
