@@ -18,7 +18,7 @@ Pre-Requiset:
 
 JenkinsFile Code steps
 -------------------------------
->step1: To build pipeline code, we need to create an agent machine and include here to build the job from agent machine 
+>step1: To build pipeline code, we need to create an agent machine and build the job from agent machine 
    
     pipeline
     {
@@ -114,7 +114,7 @@ JenkinsFile Code steps
 * Setup Docker machine (specify security group in the inbound rules. Open ssh 22 port to admin access only and specify customised port 9090 to anyone to access our webpage)
 * Establish the password-less authentication from Jenkins machine to Docker machine 
 * Add ubuntu user in docker group, to run the docker commands 
-* For this we need to create a role with AmazonEC2ContainerRegistryFullAccess and attach it to the EC2-instance
+* For this we need to create a role (meen_new_role_1) with AmazonEC2ContainerRegistryFullAccess and attach it to the EC2-instance
 
 * Authenticate to AWS ECR and install awscli and aws configure to create AccessKeys and SecretAccessKeys on IAM role for ECR permissions
 
