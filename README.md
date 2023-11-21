@@ -142,7 +142,7 @@ JenkinsFile Code steps
         {
             steps
             {
-                sh 'ssh ubuntu@54.234.168.231 docker rm -f myappcontainer'
+                sh 'ssh ubuntu@172.31.7.122 docker rm -f myappcontainer'
             }
         }
 
@@ -153,7 +153,7 @@ JenkinsFile Code steps
         {
             steps
             {
-                sh "ssh ubuntu@54.234.168.231 docker run --name myappcontainer -d -p 9090:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION"
+                sh "ssh ubuntu@172.31.7.122 docker run --name myappcontainer -d -p 9090:8080 $ECR_REGISTRY/$ECR_REPOSITORY:$BUILD_VERSION"
             }
         }
 
@@ -163,7 +163,7 @@ JenkinsFile Code steps
         {
             steps
             {
-                sh 'ssh ubuntu@54.234.168.231 docker rm -f myappcontainer'
+                sh 'ssh ubuntu@172.31.7.122 docker rm -f myappcontainer'
             }
         }
 
