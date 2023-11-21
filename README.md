@@ -118,7 +118,7 @@ JenkinsFile Code steps
 
 * Authenticate to AWS ECR and install awscli and aws configure to create AccessKeys and SecretAccessKeys on IAM role for ECR permissions
 
-        # aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}"
+        # aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ECR_REGISTRY}
 
 * Pull image from ECR    
 
